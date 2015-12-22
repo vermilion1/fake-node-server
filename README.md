@@ -17,7 +17,14 @@ Endpoints
 ---------
 
 - [/delay](http://localhost:3030/delay)  
-  Requested resource will fail within some time due to timeout error.  
-    
+  Fails within some time due to timeout error.  
+
 - [/delay/:amount](http://localhost:3030/delay/1000)  
-  Requested resource will be returned in JSON format right after passed `amount` of milliseconds. 
+  Returns empty JSON object right after passed `amount` of milliseconds. 
+
+- [/echo/:json](http://localhost:3030/echo/%7B%22prop%22:%22value%22%7D)  
+  Returns passed JSON. Example:  
+    
+        fetch('http://localhost:3030/echo/' + encodeURIComponent(JSON.stringify({prop: 'value'})))
+          .then(function (response) { return response.json(); })
+          .then(function (data) { console.log(data); }) // prints {prop: 'value'}
