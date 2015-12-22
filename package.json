@@ -1,0 +1,16 @@
+{
+  "name": "fake-server",
+  "version": "0.0.1",
+  "description": "The server with a set of endpoints that could be used for test purposes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "exit 1"
+  },
+  "author": "Vitalii Petrychuk",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.7.1",
+    "express": "^4.13.3"
+  }
+}
