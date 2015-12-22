@@ -1,8 +1,17 @@
 Fake Server
 ===========
 
+
 The server with a set of endpoints that could be used for test purposes.  
 Feel free to add endpoints for your needs.
+
+
+Run the server
+--------------
+
+    npm install
+    npm start
+
 
 Endpoints
 ---------
