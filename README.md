@@ -32,24 +32,24 @@ Endpoints
 - [/echo/json/:value](http://localhost:3030/echo/json/%7B%22prop%22:%22value%22%7D)  
   Returns passed JSON `value`. Example:  
     
-        fetch('http://localhost:3030/echo/' + encodeURIComponent(JSON.stringify({prop: 'value'})))
+        fetch('http://localhost:3030/echo/json/' + encodeURIComponent(JSON.stringify({prop: 'value'})))
           .then(function (response) { return response.json(); })
           .then(function (data) { console.log(data); }) // prints {prop: 'value'}
 
-- [/echo/xml](http://localhost:3030/echo/xml)
+- [/echo/xml](http://localhost:3030/echo/xml)  
   Returns empty XML response.
 
-- [/echo/xml/:value](http://localhost:3030/echo/xml/%3Chey%20%2F%3E)
+- [/echo/xml/:value](http://localhost:3030/echo/xml/%3Chey%20%2F%3E)  
   Returns passed XML `value`. Example:  
     
         fetch('http://localhost:3030/echo/xml/' + encodeURIComponent('<hey />'))
           .then(function (response) { return response.text(); })
           .then(function (data) { console.log(data); }) // prints <hey />
 
-- [/echo/html](http://localhost:3030/echo/html)
+- [/echo/html](http://localhost:3030/echo/html)  
   Returns empty HTML response.
 
-- [/echo/html/:value](http://localhost:3030/echo/html/%3Cbutton%3Ehey%3C%2Fbutton%3E)
+- [/echo/html/:value](http://localhost:3030/echo/html/%3Cbutton%3Ehey%3C%2Fbutton%3E)  
   Returns passed HTML `value`. Example:  
     
         fetch('http://localhost:3030/echo/html/' + encodeURIComponent('<button>hey</button>'))

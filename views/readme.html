@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="github-markdown.css"/>
+  <style>
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+  </style>
+</head>
+<body>
+  <div class="markdown-body">
+    {% autoescape false %}{{ readme }}{% endautoescape %}
+  </div>
+</body>
+</html>

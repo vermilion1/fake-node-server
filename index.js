@@ -1,12 +1,27 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
+const swig  = require('swig');
+const { markdown } = require('markdown');
 const app = express();
 
 /* -------------------------------------------------------------------------------------------------------- Constants */
 
 const PORT = 3030;
+
+/* ---------------------------------------------------------------------------------------------------- Configuration */
+
+app.engine('html', swig.renderFile);
+app.set('view engine', 'html');
+app.set('views', path.resolve(__dirname, 'views'));
+
+/* ------------------------------------------------------------------------------------------------------- Middleware */
+
+app.use(cors());
+app.use(express.static(path.resolve(__dirname, 'node_modules/github-markdown-css')));
 
 /* ---------------------------------------------------------------------------------------------------------- Helpers */
 
@@ -18,7 +33,7 @@ const emptyResponse = (req, res) => res.end();
 const xmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/xml').end(value);
 const htmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/html').end(value);
 
-const jsonResponse = (value) => (req, res) => {
+const jsonResponse = (value = {}) => (req, res) => {
   try {
     res.json(typeof value === 'string' ? JSON.parse(value) : value);
   }
@@ -26,10 +41,6 @@ const jsonResponse = (value) => (req, res) => {
     res.json(createError('Invalid JSON input'));
   }
 };
-
-/* ------------------------------------------------------------------------------------------------------- Middleware */
-
-app.use(cors());
 
 /* -------------------------------------------------------------------------------------------------------- Endpoints */
 
@@ -48,6 +59,20 @@ app.get('/echo/html/:value', (req, res) => htmlResponse(req.params.value)(req, r
 
 app.get('/echo/json', jsonResponse());
 app.get('/echo/json/:value', (req, res) => jsonResponse(req.params.value)(req, res));
+
+/* ------------------------------------------------------------------------------------------------------------ Views */
+
+app.get('/', (req, res) => {
+  let readme = fs.readFile(path.resolve(__dirname, 'README.md'), (err, data) => {
+    if (err) {
+      throw err;
+    }
+    res.render('readme', {
+      readme: markdown.toHTML(String(data)),
+      title: 'Fake Server'
+    });
+  });
+});
 
 /* ----------------------------------------------------------------------------------------------------------- Server */
 
