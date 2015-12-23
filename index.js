@@ -1,44 +1,31 @@
-var express = require('express');
-var cors = require('cors');
-var app = express();
+'use strict';
+
+const express = require('express');
+const cors = require('cors');
+const app = express();
 
 /* -------------------------------------------------------------------------------------------------------- Constants */
 
-var PORT = 3030;
-var NOOP = function () {};
-
-var EMPTY_RESPONSE = function (req, res) {
-  res.end();
-};
-
-var JSON_RESPONSE = function (value) {
-  return function (req, res) {
-    try {
-      res.json(typeof value === 'string' ? JSON.parse(value) : value);
-    }
-    catch (e) {
-      res.json(createError('Invalid JSON input'));
-    }
-  };
-};
-
-var XML_RESPONSE = function (value) {
-  return function (req, res) {
-    res.set('Content-Type', 'text/xml').end(value);
-  };
-};
-
-var HTML_RESPONSE = function (value) {
-  return function (req, res) {
-    res.set('Content-Type', 'text/html').end(value);
-  };
-};
+const PORT = 3030;
 
 /* ---------------------------------------------------------------------------------------------------------- Helpers */
 
-function createError(message) {
-  return {err: message};
-}
+const createError = message => ({err: message});
+
+const noop = () => {};
+const emptyResponse = (req, res) => res.end();
+
+const xmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/xml').end(value);
+const htmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/html').end(value);
+
+const jsonResponse = (value) => (req, res) => {
+  try {
+    res.json(typeof value === 'string' ? JSON.parse(value) : value);
+  }
+  catch (e) {
+    res.json(createError('Invalid JSON input'));
+  }
+};
 
 /* ------------------------------------------------------------------------------------------------------- Middleware */
 
@@ -46,27 +33,21 @@ app.use(cors());
 
 /* -------------------------------------------------------------------------------------------------------- Endpoints */
 
-app.get('/delay', NOOP);
-app.get('/delay/:amount', function (req, res) {
-  setTimeout(JSON_RESPONSE({}).bind(null, req, res), req.params.amount);
+app.get('/delay', noop);
+app.get('/delay/:amount', (req, res) => {
+  setTimeout(() => jsonResponse()(req, res), req.params.amount);
 });
 
-app.get('/echo', EMPTY_RESPONSE);
+app.get('/echo', emptyResponse);
 
-app.get('/echo/xml', XML_RESPONSE());
-app.get('/echo/xml/:value', function (req, res) {
-  XML_RESPONSE(req.params.value).apply(this, arguments);
-});
+app.get('/echo/xml', xmlResponse());
+app.get('/echo/xml/:value', (req, res) => xmlResponse(req.params.value)(req, res));
 
-app.get('/echo/html', HTML_RESPONSE());
-app.get('/echo/html/:value', function (req, res) {
-  HTML_RESPONSE(req.params.value).apply(this, arguments);
-});
+app.get('/echo/html', htmlResponse());
+app.get('/echo/html/:value', (req, res) => htmlResponse(req.params.value)(req, res));
 
-app.get('/echo/json', JSON_RESPONSE({}));
-app.get('/echo/json/:value', function (req, res) {
-  JSON_RESPONSE(req.params.value).apply(this, arguments);
-});
+app.get('/echo/json', jsonResponse());
+app.get('/echo/json/:value', (req, res) => jsonResponse(req.params.value)(req, res));
 
 /* ----------------------------------------------------------------------------------------------------------- Server */
 
