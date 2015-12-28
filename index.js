@@ -53,12 +53,21 @@ app.get('/echo', emptyResponse);
 
 app.get('/echo/xml', xmlResponse());
 app.get('/echo/xml/:value', (req, res) => xmlResponse(req.params.value)(req, res));
+app.get('/echo/xml/:value/:delay', (req, res) => {
+  setTimeout(() => xmlResponse(req.params.value)(req, res), req.params.delay);
+});
 
 app.get('/echo/html', htmlResponse());
 app.get('/echo/html/:value', (req, res) => htmlResponse(req.params.value)(req, res));
+app.get('/echo/html/:value/:delay', (req, res) => {
+  setTimeout(() => htmlResponse(req.params.value)(req, res), req.params.delay);
+});
 
 app.get('/echo/json', jsonResponse());
 app.get('/echo/json/:value', (req, res) => jsonResponse(req.params.value)(req, res));
+app.get('/echo/json/:value/:delay', (req, res) => {
+  setTimeout(() => jsonResponse(req.params.value)(req, res), req.params.delay);
+});
 
 /* ------------------------------------------------------------------------------------------------------------ Views */
 
