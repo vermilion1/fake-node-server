@@ -1,6 +1,6 @@
 {
   "name": "fake-node-server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The server with a set of endpoints that could be used for test purposes",
   "main": "index.js",
   "scripts": {
