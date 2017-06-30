@@ -25,48 +25,60 @@ app.use(express.static(path.resolve(__dirname, 'node_modules/github-markdown-css
 
 /* ---------------------------------------------------------------------------------------------------------- Helpers */
 
-const createError = message => ({err: message});
+const xmlResponse = (value = '', status = 200) => (req, res) => {
+  res.status(status).set('Content-Type', 'text/xml').end(value)
+};
 
-const noop = () => {};
-const emptyResponse = (req, res) => res.end();
+const htmlResponse = (value = '', status = 200) => (req, res) => {
+  res.status(status).set('Content-Type', 'text/html').end(value)
+};
 
-const xmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/xml').end(value);
-const htmlResponse = (value) => (req, res) => res.set('Content-Type', 'text/html').end(value);
-
-const jsonResponse = (value = {}) => (req, res) => {
+const jsonResponse = (value = {}, status = 200) => (req, res) => {
   try {
-    res.json(typeof value === 'string' ? JSON.parse(value) : value);
+    res.status(status).json(typeof value === 'string' ? JSON.parse(value) : value);
   }
   catch (e) {
-    res.json(createError('Invalid JSON input'));
+    res.status(500).json({err: 'Invalid JSON input'});
   }
 };
 
 /* -------------------------------------------------------------------------------------------------------- Endpoints */
 
-app.get('/delay', noop);
-app.get('/delay/:amount', (req, res) => {
-  setTimeout(() => jsonResponse()(req, res), req.params.amount);
-});
+const allowedMethods = ['get', 'post', 'put', 'delete'];
+const responseConfigurations = [
+  ['json', jsonResponse],
+  ['xml', xmlResponse],
+  ['html', htmlResponse]
+];
 
-app.get('/echo', emptyResponse);
+allowedMethods.forEach(method => {
+  app[method]('/delay', () => {});
+  app[method]('/delay/:amount', (req, res) => {
+    setTimeout(() => res.end(), req.params.amount);
+  });
 
-app.get('/echo/xml', xmlResponse());
-app.get('/echo/xml/:value', (req, res) => xmlResponse(req.params.value)(req, res));
-app.get('/echo/xml/:value/:delay', (req, res) => {
-  setTimeout(() => xmlResponse(req.params.value)(req, res), req.params.delay);
-});
+  responseConfigurations.forEach((pair) => {
+    const [type, processor] = pair;
 
-app.get('/echo/html', htmlResponse());
-app.get('/echo/html/:value', (req, res) => htmlResponse(req.params.value)(req, res));
-app.get('/echo/html/:value/:delay', (req, res) => {
-  setTimeout(() => htmlResponse(req.params.value)(req, res), req.params.delay);
-});
+    app[method](`/echo/${type}`, processor());
+    app[method](`/echo/${type}/:value`, (req, res) => processor(req.params.value)(req, res));
+    app[method](`/echo/${type}/:value/:delay`, (req, res) => {
+      const {
+        value,
+        delay
+      } = req.params;
+      setTimeout(() => processor(value)(req, res), delay);
+    });
 
-app.get('/echo/json', jsonResponse());
-app.get('/echo/json/:value', (req, res) => jsonResponse(req.params.value)(req, res));
-app.get('/echo/json/:value/:delay', (req, res) => {
-  setTimeout(() => jsonResponse(req.params.value)(req, res), req.params.delay);
+    app[method](`/echo/${type}/:value/:delay/:status`, (req, res) => {
+      const {
+        value,
+        status,
+        delay
+      } = req.params;
+      setTimeout(() => processor(value, status)(req, res), delay);
+    });
+  });
 });
 
 /* ------------------------------------------------------------------------------------------------------------ Views */
